@@ -29,7 +29,8 @@ class AuthController extends SchoolController
                 $user = Auth::user();
                 $success = [
                     'token' => $user->createToken('API Token')->plainTextToken,
-                    'name'  => $user->name
+                    'name'  => $user->name,
+                    'code'  => Response::HTTP_OK
                 ];
                 return $this->sendSuccessResponse($success,'User loggined successfully');
             }

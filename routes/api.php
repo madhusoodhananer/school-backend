@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CityController;
+use App\Http\Controllers\CountryController;
+use App\Http\Controllers\StateController;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +28,14 @@ Route::controller(AuthController::class)
             Route::post('logout', [AuthController::class,'logout'])->name('logout');
         });
     });
+
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::resource('country',CountryController::class);
+        Route::get('states',[StateController::class,'getStates'])->name('states');
+        Route::get('cities',[CityController::class,'getCities'])->name('cities');
+    });
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

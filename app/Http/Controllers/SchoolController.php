@@ -6,6 +6,7 @@ use App\Models\Member\Member;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Mix;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -14,8 +15,17 @@ use Symfony\Component\HttpFoundation\Response;
 use function response;
 class SchoolController extends Controller
 {
+    /**
+     * Sends a JSON response with a success status code
+     *
+     * @param mixed $data The data to include in the response
+     * @param string $message A message to include in the response
+     * @param int $code The HTTP status code to include in the response (default: 200 OK)
+     * @return Illuminate\Http\JsonResponse A JSON response with the specified data, message, and status code
+     */
     public function sendSuccessResponse($data,$message,int $code = Response::HTTP_OK): JsonResponse
     {
+
         $response = [
             'success'=>true,
             'data'=>$data,
@@ -24,6 +34,21 @@ class SchoolController extends Controller
         return response()->json($response, $code);
     }
 
+    /**
+     * The function sends a JSON response with an error message, optional data, and a specified HTTP
+     * status code.
+     *
+     * @param string $message The error message that will be returned in the JSON response.
+     * @param array $data An optional parameter that can be passed to the function. It is an array
+     * that can contain additional data to be included in the response. If no data is provided, the
+     * response will only include the status and message.
+     * @param int $code The code parameter is an optional HTTP response status code that can be passed
+     * to the function. It defaults to 404 (Not Found) if not specified. The code parameter is used to
+     * set the HTTP status code of the response.
+     *
+     * @return JsonResponse A JSON response with a status of false, a message, and optional data, with
+     * an HTTP status code specified as a parameter.
+     */
     public function sendErrorResponse($message,$data=[],int $code=Response::HTTP_NOT_FOUND): JsonResponse
     {
         $response = [
@@ -35,7 +60,20 @@ class SchoolController extends Controller
         }
         return response()->json($response, $code);
     }
-
+    /**
+     * Sends a JSON response with an error message, optional data, and a specified HTTP status code.
+     *
+     * @param string $message The error message that will be returned in the JSON response.
+     * @param array $data An optional parameter that can be passed to the function. It is an array
+     *                     that can contain additional data to be included in the response. If no data is provided, the
+     *                     response will only include the status and message.
+     * @param int $code The code parameter is an optional HTTP response status code that can be passed
+     *                  to the function. It defaults to 404 (Not Found) if not specified. The code parameter is used to
+     *                  set the HTTP status code of the response.
+     *
+     * @return JsonResponse A JSON response with a status of false, a message, and optional data, with
+     *                       an HTTP status code specified as a parameter.
+     */
     public function handleApiException(Exception $exception):JsonResponse
     {
         $code = Response::HTTP_INTERNAL_SERVER_ERROR;
@@ -72,4 +110,8 @@ class SchoolController extends Controller
         return $this->sendErrorResponse($message,$response,$code);
     }
 
+    public function paginatedResourceCollection($resource,$modelObject):mixed
+    {
+        return $resource::collection($modelObject)->response()->getData(true);
+    }
 }

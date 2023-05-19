@@ -55,6 +55,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Define a one-to-one relationship with the Member model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function member()
+    {
+        return $this->hasOne(Member::class);
+    }
+
     public function file()
     {
         return $this->morphMany(File::class,'fileable');

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\StateController;
@@ -41,6 +42,8 @@ Route::controller(AuthController::class)
         Route::resource('member',MemberController::class);
         Route::resource('department',DepartmentController::class);
         Route::resource('school-class',SchoolClassController::class);
+        Route::resource('exam', ExamController::class);
+
     });
 
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\StateController;
 use App\Models\Country;
@@ -37,6 +38,7 @@ Route::controller(AuthController::class)
         Route::get('states',[StateController::class,'getStates'])->name('states');
         Route::get('cities',[CityController::class,'getCities'])->name('cities');
         Route::resource('member',MemberController::class);
+        Route::resource('department',DepartmentController::class);
     });
 
 

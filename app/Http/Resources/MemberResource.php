@@ -26,7 +26,6 @@ class MemberResource extends JsonResource
             'dob'           => $this->dob,
             'gender'        => $gender[$this->gender],
             'member_type'   => $memberType[$this->member_type],
-            'country' => $this->
 
 
         ];

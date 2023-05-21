@@ -18,4 +18,10 @@ class Member extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // country relation
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
 }

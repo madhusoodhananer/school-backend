@@ -23,12 +23,15 @@ class MemberController extends SchoolController
      */
     public function index(Request $request)
     {
-        //Per page count from request
-        $perPage = $request->per_page;
-        $members = Member::with(['user','country'])->paginate($perPage);
-        dd($this->paginatedResourceCollection(MemberResource::class,$members));
-        dd(MemberResource::collection($members));
-
+        try {
+            //Per page count from request
+            $perPage = $request->per_page;
+            $members = Member::with(['user', 'country'])->paginate($perPage);
+            $data = $this->paginatedResourceCollection(MemberResource::class, $members);
+            return $this->sendSuccessResponse($data, 'Member fetched successfully');
+        } catch (Exception $exception) {
+            return $this->handleApiException($exception);
+        }
     }
 
     /**
@@ -47,6 +50,7 @@ class MemberController extends SchoolController
      */
     public function store(Request $request)
     {
+
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
@@ -91,7 +95,7 @@ class MemberController extends SchoolController
                 'password' => Hash::make(date('dmY', strtotime($inputs['dob'])))
             ]);
             if ($request->hasFile('profile_photo')) {
-                $this->storeFile($request->file('profile_photo'),'public/profilePhotos',"App\Models\User",File::USER_PROFILE_PHOTO,$user->id);
+                $this->storeFile($request->file('profile_photo'), 'public/profilePhotos', "App\Models\User", File::USER_PROFILE_PHOTO, $user->id);
             }
             // dd($user->file()->file_name);
             $inputs['user_id'] = $user->id;
@@ -114,13 +118,14 @@ class MemberController extends SchoolController
      */
     public function show(Member $member)
     {
+
         try {
 
             $response = [
-                'data'=>$member
+                'data' => $member
             ];
-            return $this->sendSuccessResponse($response,'Member fetched successfully');
-        } catch  (Exception $exception) {
+            return $this->sendSuccessResponse($response, 'Member fetched successfully');
+        } catch (Exception $exception) {
             return $this->handleApiException($exception);
         }
     }
@@ -130,7 +135,6 @@ class MemberController extends SchoolController
      */
     public function edit(Member $member)
     {
-
     }
 
     /**
@@ -138,7 +142,64 @@ class MemberController extends SchoolController
      */
     public function update(Request $request, Member $member)
     {
-        //
+
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'first_name'    => 'required|string|max:255',
+                'last_name'     => 'required|string|max:255',
+                'address'       => 'required|string',
+                'mobile_number' => 'required|string|max:255',
+                'dob'           => 'required|date_format:Y-m-d',
+                'gender'        => 'required|in:1,2,3',
+                'member_type'   => 'required|in:1,2',
+                'email'         => 'required|email',
+                'country'       => ['required', 'exists:countries,id'],
+                'state'         => ['required', 'exists:states,id'],
+                'city'          => ['required', 'exists:cities,id'],
+                'pincode'       => 'required',
+                'location'      => 'required|string',
+                'profile_photo' => '|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            $validator->validate();
+            $userId = $member->user_id;
+            $user = User::find($userId);
+            $inputs = $validator->safe()->only([
+                'first_name',
+                'last_name',
+                'address',
+                'mobile_number',
+                'dob',
+                'gender',
+                'member_type',
+                'country',
+                'state',
+                'city',
+                'pincode',
+                'location'
+            ]);
+            $forgetArray = [
+                'username',
+                'email'
+            ];
+            $userArray = [
+                'name'     => $inputs['first_name'],
+
+
+            ];
+
+            $user->update($userArray);
+
+            $inputs['user_id'] = $user->id;
+            Arr::forget($inputs, $forgetArray);
+            $member->update($inputs);
+            DB::commit();
+            return $this->sendSuccessResponse($member,'Member has been updated');
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return $this->handleApiException($exception);
+        }
     }
 
     /**
@@ -146,6 +207,11 @@ class MemberController extends SchoolController
      */
     public function destroy(Member $member)
     {
-        //
+        try {
+            $member->dele();
+            return $this->sendSuccessResponse([], 'Record has been deleted');
+        } catch (Exception $exception) {
+            return $this->sendErrorResponse($exception);
+        }
     }
 }

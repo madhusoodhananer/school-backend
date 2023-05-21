@@ -195,7 +195,7 @@ class MemberController extends SchoolController
             Arr::forget($inputs, $forgetArray);
             $member->update($inputs);
             DB::commit();
-            return $this->sendSuccessResponse($member,'Member has been updated');
+            return $this->sendSuccessResponse($member, 'Member has been updated');
         } catch (Exception $exception) {
             DB::rollBack();
             return $this->handleApiException($exception);
@@ -207,8 +207,15 @@ class MemberController extends SchoolController
      */
     public function destroy(Member $member)
     {
+
         try {
-            $member->dele();
+            $userId = $member->user_id;
+
+            $member->delete();
+            $user = User::find($userId);
+            if ($user) {
+                $user->delete();
+            }
             return $this->sendSuccessResponse([], 'Record has been deleted');
         } catch (Exception $exception) {
             return $this->sendErrorResponse($exception);
